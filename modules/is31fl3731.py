@@ -49,8 +49,13 @@ class IS31FL3731(framebuf.FrameBuffer):
                 self.i2c.writeto(device, bytes([idx])+surface[column:column+self.step])
                 column += self.bcnt
 
+    # ---
+
     def show(self, page=0):
+        self.func(bytes([0x01, page]))
+
+    def func(self, data=None):
+        data = data or IS31FL3731.INIT
         for dev in self.devices:
             self.i2c.writeto(dev, IS31FL3731.FUNC)
-            self.i2c.writeto(dev, bytes([0x01, page]))
-
+            self.i2c.writeto(dev, data)
