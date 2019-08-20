@@ -33,10 +33,10 @@ class IS31FL3731(framebuf.FrameBuffer):
             i2c.writeto(dev, IS31FL3731.DOWN)               # shutdown mode
 
             for page in range(IS31FL3731.PCNT):
-                i2c.writeto(dev, bytes([0xFD, page]))
-                i2c.writeto(dev, b'\x00'+bytes([led]*18))   # LED control
+                i2c.writeto(dev, b'\xFD'+bytes((page,)))
+                i2c.writeto(dev, b'\x00'+bytes((led,))*18)  # LED control
                 i2c.writeto(dev, b'\x12'+b'\x00'*18)        # blink control
-                i2c.writeto(dev, b'\x24'+bytes([pwm]*144))  # PWM
+                i2c.writeto(dev, b'\x24'+bytes((pwm,))*144) # PWM
 
             i2c.writeto(dev, IS31FL3731.FUNC)
             i2c.writeto(dev, IS31FL3731.INIT)               # normal operation
@@ -44,15 +44,15 @@ class IS31FL3731(framebuf.FrameBuffer):
     def send(self, page=0, external=None):
         surface = external or self.buffer
         for device, column in zip(self.devices, range(0, self.bcnt, self.step)):
-            self.i2c.writeto(device, bytes([0xFD, page]))
+            self.i2c.writeto(device, b'\xFD'+bytes((page,)))
             for idx in self.layout:
-                self.i2c.writeto(device, bytes([idx])+surface[column:column+self.step])
+                self.i2c.writeto(device, bytes((idx,))+surface[column:column+self.step])
                 column += self.bcnt
 
     # ---
 
     def show(self, page=0):
-        self.func(bytes([0x01, page]))
+        self.func(bytes((0x01, page)))
 
     def func(self, data=None):
         data = data or IS31FL3731.INIT
