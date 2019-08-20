@@ -34,12 +34,14 @@ class IS31FL3731(framebuf.FrameBuffer):
             i2c.writeto(dev, IS31FL3731.FUNC)
             i2c.writeto(dev, IS31FL3731.DOWN)               # shutdown mode
 
+        for dev in devices:
             for page in range(IS31FL3731.PCNT):
                 i2c.writeto(dev, b'\xFD'+bytes((page,)))
                 i2c.writeto(dev, b'\x00'+bytes((led,))*18)  # LED control
                 i2c.writeto(dev, b'\x12'+b'\x00'*18)        # blink control
                 i2c.writeto(dev, b'\x24'+bytes((pwm,))*144) # PWM
 
+        for dev in devices:
             i2c.writeto(dev, IS31FL3731.FUNC)
             i2c.writeto(dev, IS31FL3731.INIT)               # normal operation
 
