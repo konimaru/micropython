@@ -1,3 +1,5 @@
+# MicroPython IS31FL3731 matrix LED driver, I2C interface
+
 import framebuf, micropython
 
 class IS31FL3731(framebuf.FrameBuffer):
