@@ -41,7 +41,10 @@ class IS31FL3731(framebuf.FrameBuffer):
             i2c.writeto(dev, IS31FL3731.FUNC)
             i2c.writeto(dev, IS31FL3731.INIT)               # normal operation
 
+    # ---
+
     def send(self, page=0, external=None):
+        """send internal/external buffer to specified page"""
         surface = external or self.buffer
         for device, column in zip(self.devices, range(0, self.bcnt, self.step)):
             self.i2c.writeto(device, b'\xFD'+bytes((page,)))
@@ -49,12 +52,12 @@ class IS31FL3731(framebuf.FrameBuffer):
                 self.i2c.writeto(device, bytes((idx,))+surface[column:column+self.step])
                 column += self.bcnt
 
-    # ---
-
     def show(self, page=0):
+        """display specified page"""
         self.func(bytes((0x01, page)))
 
     def func(self, data=None):
+        """update or initialise function register/s"""
         data = data or IS31FL3731.INIT
         for dev in self.devices:
             self.i2c.writeto(dev, IS31FL3731.FUNC)
