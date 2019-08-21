@@ -28,22 +28,28 @@ class IS31FL3731(framebuf.FrameBuffer):
         self.buffer  = bytearray(self.bcnt *IS31FL3731.RCNT)
         super().__init__(self.buffer, self.width, IS31FL3731.RCNT, format)
 
-        pwm = brightness or pwm                             # override
+        pwm = brightness or pwm                 # override
 
         for dev in devices:
             i2c.writeto(dev, IS31FL3731.FUNC)
-            i2c.writeto(dev, IS31FL3731.DOWN)               # shutdown mode
+            i2c.writeto(dev, IS31FL3731.DOWN)   # shutdown mode
+
+        eins = b'\x00'+bytes((led,))*18         # LED control
+        zwei = b'\x12'+b'\x00'*18               # blink control
+        drei = b'\x24'+bytes((pwm,))*144        # PWM
 
         for dev in devices:
-            for page in range(IS31FL3731.PCNT):
-                i2c.writeto(dev, b'\xFD'+bytes((page,)))
-                i2c.writeto(dev, b'\x00'+bytes((led,))*18)  # LED control
-                i2c.writeto(dev, b'\x12'+b'\x00'*18)        # blink control
-                i2c.writeto(dev, b'\x24'+bytes((pwm,))*144) # PWM
+            page = bytearray(b'\xFD\x00')       # page select
+
+            for page[1] in range(IS31FL3731.PCNT):
+                i2c.writeto(dev, page)
+                i2c.writeto(dev, eins)
+                i2c.writeto(dev, zwei)
+                i2c.writeto(dev, drei)
 
         for dev in devices:
             i2c.writeto(dev, IS31FL3731.FUNC)
-            i2c.writeto(dev, IS31FL3731.INIT)               # normal operation
+            i2c.writeto(dev, IS31FL3731.INIT)   # normal operation
 
     # ---
 
