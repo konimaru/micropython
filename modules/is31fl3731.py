@@ -8,9 +8,9 @@ class IS31FL3731(framebuf.FrameBuffer):
     CCNT = micropython.const(16)
     RCNT = micropython.const(9)
 
-    FUNC = b'\xFD\x0B'
-    DOWN = b'\x0A\x00'
-    INIT = b'\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x01\x00\x00'
+    FUNC = b'\xFD' b'\x0B'
+    DOWN = b'\x0A' b'\x00'
+    INIT = b'\x00' b'\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x01\x00\x00'
 
     BASE = {framebuf.GS8:       (0, 0xFF, 0x00, range(0x24, 0xB4, 16)),
             framebuf.MONO_HMSB: (3, 0x00, 0x20, range(0x00, 0x12,  2))}
@@ -28,24 +28,21 @@ class IS31FL3731(framebuf.FrameBuffer):
         self.buffer  = bytearray(self.bcnt *IS31FL3731.RCNT)
         super().__init__(self.buffer, self.width, IS31FL3731.RCNT, format)
 
-        pwm = brightness or pwm                 # override
+        page = bytearray(1)                     # page select
+        eins = bytes((led,))*18                 # LED control
+        zwei = bytes(18)                        # blink control
+        drei = bytes((brightness or pwm,))*144  # PWM
 
         for dev in devices:
             i2c.writeto(dev, IS31FL3731.FUNC)
             i2c.writeto(dev, IS31FL3731.DOWN)   # shutdown mode
 
-        eins = b'\x00'+bytes((led,))*18         # LED control
-        zwei = b'\x12'+b'\x00'*18               # blink control
-        drei = b'\x24'+bytes((pwm,))*144        # PWM
-
         for dev in devices:
-            page = bytearray(b'\xFD\x00')       # page select
-
-            for page[1] in range(IS31FL3731.PCNT):
-                i2c.writeto(dev, page)
-                i2c.writeto(dev, eins)
-                i2c.writeto(dev, zwei)
-                i2c.writeto(dev, drei)
+            for page[0] in range(IS31FL3731.PCNT):
+                i2c.writeto_mem(dev, 0xFD, page)
+                i2c.writeto_mem(dev, 0x00, eins)
+                i2c.writeto_mem(dev, 0x12, zwei)
+                i2c.writeto_mem(dev, 0x24, drei)
 
         for dev in devices:
             i2c.writeto(dev, IS31FL3731.FUNC)
@@ -60,10 +57,10 @@ class IS31FL3731(framebuf.FrameBuffer):
         s  = self.step
 
         for device, column in zip(self.devices, range(0, b, s)):
-            self.i2c.writeto(device, b'\xFD'+bytes((page,)))
+            self.i2c.writeto_mem(device, 0xFD, bytes((page,)))
 
             for idx in self.layout:
-                self.i2c.writeto(device, bytes((idx,))+mv[column:column+s])
+                self.i2c.writeto_mem(device, idx, mv[column:column+s])
                 column += b
 
     def show(self, page=0):
@@ -77,3 +74,4 @@ class IS31FL3731(framebuf.FrameBuffer):
         for dev in self.devices:
             self.i2c.writeto(dev, IS31FL3731.FUNC)
             self.i2c.writeto(dev, data)
+
