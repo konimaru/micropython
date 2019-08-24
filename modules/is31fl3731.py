@@ -44,9 +44,7 @@ class IS31FL3731(framebuf.FrameBuffer):
                 i2c.writeto_mem(dev, 0x12, zwei)
                 i2c.writeto_mem(dev, 0x24, drei)
 
-        for dev in devices:
-            i2c.writeto(dev, IS31FL3731.FUNC)
-            i2c.writeto(dev, IS31FL3731.INIT)   # normal operation
+        self.func()                             # normal operation
 
     # ---
 
