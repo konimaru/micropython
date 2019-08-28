@@ -73,3 +73,4 @@ class IS31FL3731(framebuf.FrameBuffer):
             self.i2c.writeto(dev, IS31FL3731.FUNC)
             self.i2c.writeto(dev, data)
 
+IS31FL3731_I2C = IS31FL3731
