@@ -57,6 +57,9 @@ class IS31FL3731(framebuf.FrameBuffer):
 
         return status
 
+    def __len__(self):
+        return len(self.devices)
+
     # ---
 
     def send(self, page=0, external=None):
