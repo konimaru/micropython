@@ -44,7 +44,7 @@ class IS31FL3731(framebuf.FrameBuffer):
                 i2c.writeto_mem(dev, 0x12, zwei)
                 i2c.writeto_mem(dev, 0x24, drei)
 
-        self.func()                             # normal operation
+        self.func(IS31FL3731.INIT)              # normal operation
 
     # ---
 
@@ -65,10 +65,8 @@ class IS31FL3731(framebuf.FrameBuffer):
         """display specified page"""
         self.func(bytes((0x01, page)))
 
-    def func(self, data=None):
-        """update or initialise function register/s"""
-        data = data or IS31FL3731.INIT
-
+    def func(self, data):
+        """update function register/s"""
         for dev in self.devices:
             self.i2c.writeto(dev, IS31FL3731.FUNC)
             self.i2c.writeto(dev, data)
