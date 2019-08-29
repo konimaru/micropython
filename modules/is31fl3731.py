@@ -46,6 +46,17 @@ class IS31FL3731(framebuf.FrameBuffer):
 
         self.func(IS31FL3731.INIT)              # normal operation
 
+    def __call__(self, page=None):
+        if page is not None:                    # set page/s
+            return self.func(bytes((0x01, page)))
+
+        status = list()
+        for dev in self.devices:                # query page/s
+            self.i2c.writeto(dev, IS31FL3731.FUNC)
+            status.append(self.i2c.readfrom_mem(dev, 0x07, 1)[0])
+
+        return status
+
     # ---
 
     def send(self, page=0, external=None):
@@ -60,10 +71,6 @@ class IS31FL3731(framebuf.FrameBuffer):
             for idx in self.layout:
                 self.i2c.writeto_mem(device, idx, mv[column:column+s])
                 column += b
-
-    def show(self, page=0):
-        """display specified page"""
-        self.func(bytes((0x01, page)))
 
     def func(self, data):
         """update function register/s"""
