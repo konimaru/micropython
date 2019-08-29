@@ -3,17 +3,31 @@
 import framebuf, micropython
 
 class IS31FL3731(framebuf.FrameBuffer):
-    PCNT = micropython.const(8)
+    PCNT  = micropython.const(8)
 
-    CCNT = micropython.const(16)
-    RCNT = micropython.const(9)
+    CCNT  = micropython.const(16)
+    RCNT  = micropython.const(9)
 
-    FUNC = b'\xFD' b'\x0B'
-    DOWN = b'\x0A' b'\x00'
-    INIT = b'\x00' b'\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x01\x00\x00'
+    FUNC  = b'\xFD' b'\x0B'
+    DOWN  = b'\x0A' b'\x00'
+    INIT  = b'\x00' b'\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x01\x00\x00'
 
-    BASE = {framebuf.GS8:       (0, 0xFF, 0x00, range(0x24, 0xB4, 16)),
-            framebuf.MONO_HMSB: (3, 0x00, 0x20, range(0x00, 0x12,  2))}
+    BASE  = {framebuf.GS8:       (0, 0xFF, 0x00, range(0x24, 0xB4, 16)),
+             framebuf.MONO_HMSB: (3, 0x00, 0x20, range(0x00, 0x12,  2))}
+
+    PWM32 = b'\x00\x01\x02\x04\x06\x0A\x0D\x12' \
+            b'\x16\x1C\x21\x27\x2E\x35\x3D\x45' \
+            b'\x4E\x56\x60\x6A\x74\x7E\x8A\x95' \
+            b'\xA1\xAD\xBA\xC7\xD4\xE2\xF0\xFF'
+
+    PWM64 = b'\x00\x01\x02\x03\x04\x05\x06\x07' \
+            b'\x08\x0A\x0C\x0E\x10\x12\x14\x16' \
+            b'\x18\x1A\x1D\x20\x23\x26\x29\x2C' \
+            b'\x2F\x32\x35\x39\x3D\x41\x45\x49' \
+            b'\x4D\x51\x55\x59\x5E\x63\x68\x6D' \
+            b'\x72\x77\x7C\x81\x86\x8C\x92\x98' \
+            b'\x9E\xA4\xAA\xB0\xB6\xBC\xC3\xCA' \
+            b'\xD1\xD8\xDF\xE6\xED\xF4\xFB\xFF'
 
     def __init__(self, i2c, devices, format, brightness=0):
         self.i2c     = i2c
