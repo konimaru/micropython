@@ -16,9 +16,6 @@ class Connector(object):
 
         self.pin  = Pin(2, Pin.OUT, value=1)
 
-        self.disp.rect(1, 1, len(self.disp) *16 -2, self.disp.RCNT -2, 0x01)
-        self.disp.send()
-
     def __call__(self, payload):
         if len(payload) == len(self.disp.buffer):
             self.page ^= 1
@@ -35,4 +32,3 @@ class Connector(object):
 
 import endos
 endos.Listener(Connector()).run()
-
